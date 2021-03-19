@@ -25,7 +25,7 @@ def callback(packet):
         channel = stats.get("channel")
         # get the crypto
         crypto = stats.get("crypto")
-        networks.loc[bssid] = (ssid, dbm_signal, channel, crypto)
+        networks.loc[bssid.upper()] = (ssid, dbm_signal, channel, crypto)
         
 
 def print_all():

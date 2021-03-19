@@ -8,8 +8,8 @@ def wrapper(ap_bssid):
     def ap_mac(pkt):
         if pkt.haslayer(Dot11):
             addresses = (pkt.addr1,pkt.addr3)
-            if ap_bssid.lower() in addresses and "ff:ff:ff:ff:ff:ff" not in addresses and None not in addresses :
-                stations.add(pkt.addr2)
+            if ap_bssid.lower() in addresses and "FF:FF:FF:FF:FF:FF" not in addresses and None not in addresses :
+                stations.add(pkt.addr2.upper())
                 os.system("clear")
                 print(numpy.array(list(stations)))
         else: pass
