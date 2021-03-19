@@ -4,13 +4,12 @@ import argparse
 from functools import partial 
 
 stations = set(("")) # note the double round-brackets
-def wrapper(bssid):
+def wrapper(ap_bssid):
     def ap_mac(pkt):
         if pkt.haslayer(Dot11):
             addresses = (pkt.addr1,pkt.addr3)
-            if bssid.lower() in addresses and "ff:ff:ff:ff:ff:ff" not in addresses and None not in addresses :
+            if ap_bssid.lower() in addresses and "ff:ff:ff:ff:ff:ff" not in addresses and None not in addresses :
                 stations.add(pkt.addr2)
-                # print(a[:,0])
                 os.system("clear")
                 print(numpy.array(list(stations)))
         else: pass
@@ -18,18 +17,16 @@ def wrapper(bssid):
 
 if __name__ == "__main__":
     # interface name, check using iwconfig
-    # parser = argparse.ArgumentParser(description="A python script for sending deauthentication frames")
-    # parser.add_argument("target", help="Target MAC address to deauthenticate.")
+    parser = argparse.ArgumentParser(description="A python script for for finding all clients bssid that connected to specified ap")
+    parser.add_argument("ap_bssid", help="Access point bssid")
 
-    # args = parser.parse_args()
-    # target = args.target
+    args, unknown = parser.parse_known_args()
+    ap_bssid = args.ap_bssid
 
     interface = "wlan0mon"
-    try:
-        sniff(prn=wrapper("14:AE:DB:32:0A:8A"),iface=interface)
-    except KeyboardInterrupt:
-        print(stations) 
-        sys.exit()
+    
+    sniff(prn=wrapper(ap_bssid),iface=interface)
+  
 
     # start sniffing
    
