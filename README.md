@@ -25,8 +25,8 @@ Set value `wlan1` interface according to your environment
 
 Open another terminal tab
 
-#### Ste 6 - Find Connected Clients
-```python3 find_ap.py BSSID```
+#### Step 6 - Find Connected Clients
+```python3 find_ap_clients.py BSSID```
 
 #### Step 7 - Execute deauth
 ``` python3 deauth_client.py TARGET_BSSID ACCESS_POINT_BSSID -v```
