@@ -40,3 +40,6 @@ Open another terminal tab
 **Solution:** 
 ```cd /usr/lib/x86_64-linux-gnu/```
 ```ln -s -f libc.a liblibc.a```
+
+
+### Code sources

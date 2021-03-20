@@ -1,18 +1,16 @@
 from scapy.all import *
 from threading import Thread
-import pandas
 import time
 import os
 
-# initialize the networks dataframe that will contain all access points nearby
-networks = pandas.DataFrame(columns=["BSSID", "SSID", "dBm_Signal", "Channel", "Crypto"])
-# set the index BSSID (MAC address of the AP)
-networks.set_index("BSSID", inplace=True)
+
+networks = {} # note the double round-brackets
+spacing = "{:<20} {:<40} {:<10} {:<10} {:<10}"
 
 def callback(packet):
     if packet.haslayer(Dot11Beacon):
         # extract the MAC address of the network
-        bssid = packet[Dot11].addr2
+        bssid = packet[Dot11].addr2.upper()
         # get the name of it
         ssid = packet[Dot11Elt].info.decode()
         try:
@@ -25,35 +23,41 @@ def callback(packet):
         channel = stats.get("channel")
         # get the crypto
         crypto = stats.get("crypto")
-        networks.loc[bssid.upper()] = (ssid, dbm_signal, channel, crypto)
-        
-
-def print_all():
-    while True:
-        os.system("clear")
-        print(networks)
-        time.sleep(2)
+        if bssid not in networks:
+            networks[bssid] = [ssid, dbm_signal, channel, crypto]
+            print(spacing.format(bssid, ssid, dbm_signal, channel, list(crypto)[0]))
 
 
-def change_channel():
+def change_channel(total_time,interval):
     ch = 1
-    while True:
+    for i in range(1, int(total_time/interval)): 
         os.system(f"iwconfig {interface} channel {ch}")
         # switch channel from 1 to 14 each 0.5s
+        print("jopa")
         ch = ch % 14 + 1
-        time.sleep(0.5)
+        time.sleep(interval)
+
+
+def wrapper(total_time):
+    def stop_sniff(self):
+        time.sleep(total_time)
+        return True
+    return stop_sniff
 
 
 if __name__ == "__main__":
+
+    #TODO: Activate monitoring from code by getting arguments
     # interface name, check using iwconfig
     interface = "wlan0mon"
-    # start the thread that prints all the networks
-    printer = Thread(target=print_all)
-    printer.daemon = True
-    printer.start()
-    # start the channel changer
-    channel_changer = Thread(target=change_channel)
+    total_time = 60
+
+    channel_changer = Thread(target=change_channel,args=(total_time,0.5))
     channel_changer.daemon = True
     channel_changer.start()
+
+    print(spacing.format("BSSID", "SSID", "dBm_Signal", "Channel", "Crypto"))
+    sniff(prn=callback, iface=interface,stop_filter=wrapper(total_time))
+
     # start sniffing
-    sniff(prn=callback, iface=interface)
+    # time.sleep(5)
