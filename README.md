@@ -18,6 +18,6 @@ run ```pip install -r requirements.txt```
 Set value `wlan1` of interfaces according to your environment
 ```iw dev wlan1 interface add wlan0mon type monitor```
 ```ifconfig wlan0mon up```
-
+git
 *** Scan for access points
 
