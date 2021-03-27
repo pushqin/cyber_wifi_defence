@@ -2,10 +2,13 @@ from scapy.all import *
 from threading import Thread
 import time
 import os
+import inquirer
+from find_ap_clients import find_ap_clients
+import asyncio
 
-
-networks = {} # note the double round-brackets
+networks = {}  # note the double round-brackets
 spacing = "{:<20} {:<40} {:<10} {:<10} {:<10}"
+
 
 def callback(packet):
     if packet.haslayer(Dot11Beacon):
@@ -25,39 +28,98 @@ def callback(packet):
         crypto = stats.get("crypto")
         if bssid not in networks:
             networks[bssid] = [ssid, dbm_signal, channel, crypto]
-            print(spacing.format(bssid, ssid, dbm_signal, channel, list(crypto)[0]))
+            print(spacing.format(bssid, ssid,
+                  dbm_signal, channel, list(crypto)[0]))
 
 
-def change_channel(total_time,interval):
+def change_channel(total_time, interval):
     ch = 1
-    for i in range(1, int(total_time/interval)): 
+    for i in range(1, int(total_time/interval)):
         os.system(f"iwconfig {interface} channel {ch}")
         # switch channel from 1 to 14 each 0.5s
-        print("jopa")
+        # print("jopa")
         ch = ch % 14 + 1
         time.sleep(interval)
 
 
 def wrapper(total_time):
+    # time.sleep(total_time)
+    return True
+
     def stop_sniff(self):
-        time.sleep(total_time)
-        return True
+        return False
     return stop_sniff
+
+
+def selectbssid():
+    questions = [
+        inquirer.List('app_bssid',
+                      message="Select BSSID oof the access point",
+                      choices=networks
+                      ),
+    ]
+    return inquirer.prompt(questions)["app_bssid"]
+
+
+# def snif():
+#     sniffer_thread = AsyncSniffer(prn=callback, iface=interface)
+#     sniffer_thread.start()
+#     # time.sleep(5)
+#     # sniffer_thread.stop()
+
+
+# async def run():
+#     # TODO: Activate monitoring from code by getting arguments
+#     # interface name, check using iwconfig
+#     interface = "wlan0mon"
+#     total_time = 60
+
+#     # async def main():
+#     #     print('Hello ...')
+#     #     await asyncio.sleep(1)
+#     #     print('... World!')
+
+#     # Python 3.7+
+#     try:
+#         loop = asyncio.get_event_loop()
+#         loop.run_until_complete(await asyncio.wait_for(
+#             asyncio.gather(
+#                 change_channel(total_time, 0.5),
+#                 snif()),
+#             timeout=5.0,
+#         ))
+
+#         # await asyncio.sleep(3)  # <- f() and g() are already running!
+
+#         # result_f, result_g = await asyncio.wait_for(
+#         #     asyncio.gather( change_channel(total_time,0.5),
+#         #     snif()),
+#         #     timeout=5.0,
+#         # )
+#     except asyncio.TimeoutError:
+#         print("oops took longer than 5s!")
+
+#     loop.close()
+#     # channel_changer = Thread(target=change_channel,args=(total_time,0.5))
+#     # channel_changer.daemon = True
 
 
 if __name__ == "__main__":
 
-    #TODO: Activate monitoring from code by getting arguments
+    # TODO: Activate monitoring from code by getting arguments
     # interface name, check using iwconfig
     interface = "wlan0mon"
     total_time = 60
 
-    channel_changer = Thread(target=change_channel,args=(total_time,0.5))
+    channel_changer = Thread(target=change_channel, args=(total_time, 0.5))
     channel_changer.daemon = True
     channel_changer.start()
 
     print(spacing.format("BSSID", "SSID", "dBm_Signal", "Channel", "Crypto"))
-    sniff(prn=callback, iface=interface,stop_filter=wrapper(total_time))
+    sniffer_thread = AsyncSniffer(prn=callback, iface=interface)
+    sniffer_thread.start()
+    time.sleep(5)
+    sniffer_thread.stop()
 
-    # start sniffing
-    # time.sleep(5)
+    ap_bssid = selectbssid()
+    find_ap_clients(interface).sniffAction(ap_bssid)
