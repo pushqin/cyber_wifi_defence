@@ -36,10 +36,15 @@ Open another terminal tab
 ### Troubleshooting 
 
 **Problem:** 
-```No such file or directory: b'liblibc.a'``` this problem occures on python 3.9+
+```No such file or directory: b'liblibc.a'``` this problem occures on python 3.9+   
 **Solution:** 
 ```cd /usr/lib/x86_64-linux-gnu/```
 ```ln -s -f libc.a liblibc.a```
 
-
+**Problem:** You can find stations connected to your ap or deauth stop working      
+**Solution** Solution not using airmon-ng is not is scope of this assignment IMO.   
+You might have processes that can interfere by changing channels
+and sometimes putting the interface back in managed mode
+run ```airmon-ng check kill```  
+When you finish run ```service NetworkManager restart ``` to enable network again
 ### Code sources
