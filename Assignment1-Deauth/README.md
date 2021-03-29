@@ -24,20 +24,25 @@
 We dont want to pollute our environement, if you dont care go to **step 2**
 
 Install venv -   ```apt-get install python3-venv```
+
 Create venv  ```python3 -m venv wifi-deauth```
+
 Activate environemnt ```source wifi-deauth/bin/activate```
 
 
-#### Step 2 - Install requirements
+
+
+#### Step 3 - Install requirements
 run ```pip install -r requirements.txt```
 
 
 #### Step 4 - Main program
 
 You just need to select the desired inputs
+
 ![alt text](assets/example.png "Example of input")
-run ```python3 main.py --help``` to see if default parameters are good for you
-run ```python3 main.py```
+
+run ```python3 main.py --help``` to see if default parameters are good for you. if so, run ```python3 main.py```
 
 ### Troubleshooting 
 
