@@ -44,7 +44,8 @@ You just need to select the desired inputs
 run ```python3 main.py --help``` to see if default parameters are good for you.   
 If so, run ```python3 main.py```  
 **notRoot** - Because sudo activates own environment we need to tell explcitly that we want to run on environment we installed
-run ``` sudo {pathToTheEnvironment}/bin/python3 main.py    
+run ``` sudo {pathToTheEnvironment}/bin/python3 main.py```    
+
 for example ```sudo ~/repos/cyber_wifi_defence-master/Assignment1-Deauth/wifi-deauth/bin/python3 main.py```
 
 ### Troubleshooting 
