@@ -7,12 +7,15 @@ from scan_acess_points import ScanAccessPoints
 
 
 def select_ap_bssid(values):
+    """
+    allows the user to select an access point from a list
 
-    # Parameters
-    # ----------
-    # values : Dictionary
-    #     all founded access points BSSIDs
-    
+    Parameters
+    ----------
+    values : Dictionary
+        all founded access points BSSIDs
+    """
+
     questions = [
         inquirer.List('ap_bssid', message="Select BSSID of the access point", choices=values),
     ]
@@ -21,11 +24,14 @@ def select_ap_bssid(values):
 
 
 def select_bssids_for_deauth(values):
+    """
+    allows the user to select the station he would like to perform deauth attack on.
 
-    # Parameters
-    # ----------
-    # values : Dictionary
-    #     all founded stations of the specific BSSID
+    Parameters
+    ----------
+    values : Dictionary
+        all founded stations of the specific BSSID
+    """
 
     questions = [
         inquirer.List('both_bssid', message="Select target station BSSID to deauth", choices=values),

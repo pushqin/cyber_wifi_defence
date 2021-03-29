@@ -9,22 +9,31 @@ class ScanAccessPoints:
 
     def __init__(self, iface="wlan0mon"):
 
-        # Parameters
-        # ----------
-        # iface : str,optional
-        #    Interface to use, must be in monitor mode (default 'wlan0mon')
+        """
+        c'tor
+
+        Parameters
+        ----------
+        iface : str,optional
+           Interface to use, must be in monitor mode (default 'wlan0mon')
+        """
 
         self.access_points = {}
         self.iface = iface
 
     def change_channel(self, total_time, interval):
 
-        # Parameters
-        # ----------
-        # total_time : decimal
-        #     The desired amount of time to search for an access point
-        # interval : decimal
-        #     Time per channel
+        """
+        changes wifi channel after certain amount of time
+        performed in parallel to the sniffing
+
+        Parameters
+        ----------
+        total_time : decimal
+            The desired amount of time to search for an access point
+        interval : decimal
+            Time per channel
+        """
 
         ch = 1
         for i in range(1, int(total_time/interval)):
@@ -35,10 +44,14 @@ class ScanAccessPoints:
 
     def sniffAction(self, timeout):
 
-        # Parameters
-        # ----------
-        # timeout : decimal
-        #     max sniffing time
+        """
+        sniffs to find access points.
+        
+        Parameters
+        ----------
+        timeout : decimal
+            max sniffing time
+        """
 
         print(spacing.format("BSSID", "SSID", "dBm_Signal", "Channel", "Crypto"))
         sniffer_thread = AsyncSniffer(prn=self.callback, iface=self.iface)
@@ -53,10 +66,15 @@ class ScanAccessPoints:
 
     def callback(self, pkt):
 
-        # Parameters
-        # ----------
-        # pkt : packet object
-        #     packet for analysis
+        """
+        performs for every packet the sniffer finds.
+        analyzes the packet to find new saccess points. 
+
+        Parameters
+        ----------
+        pkt : packet object
+            packet for analysis
+        """
 
         if pkt.haslayer(Dot11Beacon):
             # extract the MAC address of the network
