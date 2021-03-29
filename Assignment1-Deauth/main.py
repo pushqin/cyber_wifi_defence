@@ -7,14 +7,26 @@ from scan_acess_points import ScanAccessPoints
 
 
 def select_ap_bssid(values):
+
+    # Parameters
+    # ----------
+    # values : Dictionary
+    #     all founded access points BSSIDs
+    
     questions = [
-        inquirer.List('ap_bssid', message="Select BSSID oof the access point", choices=values),
+        inquirer.List('ap_bssid', message="Select BSSID of the access point", choices=values),
     ]
 
     return inquirer.prompt(questions)["ap_bssid"]
 
 
 def select_bssids_for_deauth(values):
+
+    # Parameters
+    # ----------
+    # values : Dictionary
+    #     all founded stations of the specific BSSID
+
     questions = [
         inquirer.List('both_bssid', message="Select target station BSSID to deauth", choices=values),
     ]
@@ -37,11 +49,13 @@ if __name__ == "__main__":
         help="Amount of time each sniffing stage(find access points and find access point connected stations) should be executed ,default 60",
         default=60)
 
+    # Get arguments
     args = parser.parse_args()
     card_iface = args.card_iface
     monitor_iface = args.monitor_iface
     sniff_time = int(args.sniff_time)
 
+    # Setup wireless network interface to monitor mode
     os.system(f"iw dev {card_iface} interface add {monitor_iface} type monitor")
     os.system(f"ifconfig {monitor_iface} up")
 

@@ -8,10 +8,23 @@ class FindAccessPointConnectedStations:
 
     def __init__(self, iface="wlan0mon"):
 
+        # Parameters
+        # ----------
+        # iface : str,optional
+        #    Interface to use, must be in monitor mode (default 'wlan0mon')
+
         self.stations = {}  # note the double round-brackets
         self.iface = iface
 
     def sniffAction(self, ap_bssid, timeout):
+
+        # Parameters
+        # ----------
+        # ap_bssid : str
+        #     Gateway BSSID address that target is authenticated with
+        # timeout : decimal
+        #     max sniffing time
+
         print(spacing.format("CONNECTED_STATION_BSSID", "ACCESS_POINT_BSSID"))
         sniffer_thread = AsyncSniffer(prn=self.wrapper(ap_bssid), iface=self.iface)
         sniffer_thread.start()
@@ -20,6 +33,14 @@ class FindAccessPointConnectedStations:
 
     def wrapper(self, ap_bssid):
         def callback(pkt):
+
+            # Parameters
+            # ----------
+            # ap_bssid : str
+            #     Gateway BSSID address that target is authenticated with
+            # pkt : packet object
+            #     packet for analysis
+
             if pkt.haslayer(Dot11):
                 addr1, addr2, addr3 = pkt.addr1, pkt.addr2, pkt.addr3
                 # Sanitze and upper all inputs
