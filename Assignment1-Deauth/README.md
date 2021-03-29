@@ -6,7 +6,7 @@
 * Deauthentication tested on private huawei phone that connected to bezeq Vtech router,didnt tested on neighbours :-)
 * On some day working code just stopped finding connected stations of access point,wasted on that whole day and tomorrow it magically started to work again, the frustrating part is that there is no clue why it didnt work.
 * Some of the code is taken from various places on the web, modified to be as it now.
-* Accidentaly run kali as root(bad practice), so i hope everything will work properly on least previledged account as well.
+* Accidentaly run kali as root(bad practice), so i hope everything will work properly on least previledged account as well.    In case you dont run on root it adds complexity ,added specific instructions for that case as well,ill mark them as **notRoot**
 * Would really like to hear you feeback about the solution,code structuring and design descisions made.
 
 #### Requirements ####
@@ -23,7 +23,8 @@
 #### Step 2 - Setup virtual environment
 We dont want to pollute our environement, if you dont care go to **step 3**
 
-Install venv -   ```apt-get install python3-venv```
+Install venv -   ```apt-get install python3-venv```    
+**notRoot** ```sudo apt-get install python3-venv```
 
 Create venv  ```python3 -m venv wifi-deauth```
 
@@ -40,7 +41,11 @@ You just need to select the desired inputs
 
 ![alt text](assets/example.png "Example of input")
 
-run ```python3 main.py --help``` to see if default parameters are good for you. if so, run ```python3 main.py```
+run ```python3 main.py --help``` to see if default parameters are good for you.   
+If so, run ```python3 main.py```  
+**notRoot** - Because sudo activates own environment we need to tell explcitly that we want to run on environment we installed
+run ``` sudo {pathToTheEnvironment}/bin/python3 main.py    
+for example ```sudo ~/repos/cyber_wifi_defence-master/Assignment1-Deauth/wifi-deauth/bin/python3 main.py```
 
 ### Troubleshooting 
 
