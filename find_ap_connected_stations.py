@@ -6,22 +6,22 @@ from functools import partial
 spacing = "{:<20} {:<20}"
 
 
-class find_ap_clients:
+class FindAccessPointConnectedStations:
 
-    def __init__(self, interface="wlan0mon"):
+    def __init__(self, iface="wlan0mon"):
 
         self.stations = {}  # note the double round-brackets
-        self.interface = interface
+        self.iface = iface
 
     def sniffAction(self, ap_bssid, timeout):
         print(spacing.format("TARGET_BSSID", "AP_SSID"))
-        sniffer_thread = AsyncSniffer(prn=self.wrapper(ap_bssid), iface=self.interface)
+        sniffer_thread = AsyncSniffer(prn=self.wrapper(ap_bssid), iface=self.iface)
         sniffer_thread.start()
         time.sleep(timeout)
         sniffer_thread.stop()
 
     def wrapper(self, ap_bssid):
-        def ap_mac(pkt):
+        def callback(pkt):
             if pkt.haslayer(Dot11):
                 addr1, addr2, addr3 = pkt.addr1, pkt.addr2, pkt.addr3
                 # Sanitze and upper all inputs
@@ -37,4 +37,4 @@ class find_ap_clients:
                         print(spacing.format(sanitizedAddr2, sanitizedAddr1))
             else:
                 pass
-        return ap_mac
+        return callback
