@@ -13,9 +13,14 @@ class find_ap_clients:
         self.stations = {}  # note the double round-brackets
         self.interface = interface
 
-    def sniffAction(self, ap_bssid):
+    def sniffAction(self, ap_bssid, timeout):
         print(spacing.format("TARGET_BSSID", "AP_SSID"))
-        sniff(prn=self.wrapper(ap_bssid), iface=self.interface)
+        # sniff(prn=self.wrapper(ap_bssid), iface=self.interface)
+        sniffer_thread = AsyncSniffer(
+            prn=self.wrapper(ap_bssid), iface=self.interface)
+        sniffer_thread.start()
+        time.sleep(timeout)
+        sniffer_thread.stop()
 
     def wrapper(self, ap_bssid):
         def ap_mac(pkt):
