@@ -21,15 +21,13 @@
 ```cd Assignment1-Deauth```
 
 #### Step 2 - Setup virtual environment
-We dont want to pollute our environement, if you dont care go to **step 2**
+We dont want to pollute our environement, if you dont care go to **step 3**
 
 Install venv -   ```apt-get install python3-venv```
 
 Create venv  ```python3 -m venv wifi-deauth```
 
 Activate environemnt ```source wifi-deauth/bin/activate```
-
-
 
 
 #### Step 3 - Install requirements
