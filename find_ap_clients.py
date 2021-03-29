@@ -15,9 +15,7 @@ class find_ap_clients:
 
     def sniffAction(self, ap_bssid, timeout):
         print(spacing.format("TARGET_BSSID", "AP_SSID"))
-        # sniff(prn=self.wrapper(ap_bssid), iface=self.interface)
-        sniffer_thread = AsyncSniffer(
-            prn=self.wrapper(ap_bssid), iface=self.interface)
+        sniffer_thread = AsyncSniffer(prn=self.wrapper(ap_bssid), iface=self.interface)
         sniffer_thread.start()
         time.sleep(timeout)
         sniffer_thread.stop()
@@ -26,6 +24,7 @@ class find_ap_clients:
         def ap_mac(pkt):
             if pkt.haslayer(Dot11):
                 addr1, addr2, addr3 = pkt.addr1, pkt.addr2, pkt.addr3
+                # Sanitze and upper all inputs
                 sanitizedAddr1 = addr1.upper() if addr1 is not None else ''
                 sanitizedAddr2 = addr2.upper() if addr2 is not None else ''
                 sanitizedAddr3 = addr3.upper() if addr3 is not None else ''
@@ -33,32 +32,9 @@ class find_ap_clients:
                 addresses = (sanitizedAddr1, sanitizedAddr3)
 
                 if ap_bssid in addresses and "FF:FF:FF:FF:FF:FF" not in addresses and '' not in addresses:
-                    # self.stations.add(sanitizedAddr2)
-                    # os.system("clear")
                     if sanitizedAddr2 not in self.stations:
-                        self.stations[sanitizedAddr2] = [sanitizedAddr1]
+                        self.stations[sanitizedAddr2] = sanitizedAddr1
                         print(spacing.format(sanitizedAddr2, sanitizedAddr1))
             else:
                 pass
         return ap_mac
-
-
-# if __name__ == "__main__":
-#     # interface name, check using iwconfig
-#     parser = argparse.ArgumentParser(
-#         description="A python script for for finding all clients bssid that connected to specified ap")
-#     parser.add_argument("ap_bssid", help="Access point bssid")
-
-#     args, unknown = parser.parse_known_args()
-#     ap_bssid = args.ap_bssid
-
-#     interface = "wlan0mon"
-
-#     sniff(prn=wrapper(ap_bssid), iface=interface)
-
-    # start sniffing
-
-
-# In our case the full command is:
-
-# airodump-ng -d 50:C7:BF:DC:4C:E8 -c 11 wlan0mo

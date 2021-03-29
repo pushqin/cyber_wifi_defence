@@ -4,9 +4,8 @@ import time
 import os
 import inquirer
 from find_ap_clients import find_ap_clients
-import asyncio
-from countdown_task import CountdownTask
 import deauth_client
+
 
 networks = {}  # note the double round-brackets
 spacing = "{:<20} {:<40} {:<10} {:<10} {:<10}"
@@ -38,19 +37,9 @@ def change_channel(total_time, interval):
     ch = 1
     for i in range(1, int(total_time/interval)):
         os.system(f"iwconfig {interface} channel {ch}")
-        # switch channel from 1 to 14 each 0.5s
-        # print("jopa")
+        # switch channel from 1 to 14 each time defined in interval
         ch = ch % 14 + 1
         time.sleep(interval)
-
-
-# def wrapper(total_time):
-#     # time.sleep(total_time)
-#     return True
-
-#     def stop_sniff(self):
-#         return False
-#     return stop_sniff
 
 
 def selectbssid():
@@ -60,59 +49,21 @@ def selectbssid():
                       choices=networks
                       ),
     ]
+
     return inquirer.prompt(questions)["app_bssid"]
 
-
-# def snif():
-#     sniffer_thread = AsyncSniffer(prn=callback, iface=interface)
-#     sniffer_thread.start()
-#     # time.sleep(5)
-#     # sniffer_thread.stop()
-
-
-# async def run():
-#     # TODO: Activate monitoring from code by getting arguments
-#     # interface name, check using iwconfig
-#     interface = "wlan0mon"
-#     total_time = 60
-
-#     # async def main():
-#     #     print('Hello ...')
-#     #     await asyncio.sleep(1)
-#     #     print('... World!')
-
-#     # Python 3.7+
-#     try:
-#         loop = asyncio.get_event_loop()
-#         loop.run_until_complete(await asyncio.wait_for(
-#             asyncio.gather(
-#                 change_channel(total_time, 0.5),
-#                 snif()),
-#             timeout=5.0,
-#         ))
-
-#         # await asyncio.sleep(3)  # <- f() and g() are already running!
-
-#         # result_f, result_g = await asyncio.wait_for(
-#         #     asyncio.gather( change_channel(total_time,0.5),
-#         #     snif()),
-#         #     timeout=5.0,
-#         # )
-#     except asyncio.TimeoutError:
-#         print("oops took longer than 5s!")
-
-#     loop.close()
-#     # channel_changer = Thread(target=change_channel,args=(total_time,0.5))
-#     # channel_changer.daemon = True
 
 def selectbssiddual(values):
     questions = [
-        inquirer.List('app_bssid',
-                      message="Select BSSID oof the access point",
+        inquirer.List('both_bssid',
+                      message="Select target station to deauth",
                       choices=values
                       ),
     ]
-    return inquirer.prompt(questions)["app_bssid"]
+
+    target_bssid = inquirer.prompt(questions)["both_bssid"]
+
+    return dict(target_bssid=target_bssid, ap_bssid=values[target_bssid])
 
 
 if __name__ == "__main__":
@@ -137,11 +88,8 @@ if __name__ == "__main__":
     find_ap_task.sniffAction(ap_bssid, 10)
 
     time.sleep(10)
-
-    ap_bssid2 = selectbssiddual(find_ap_task.stations)
-    deauth_client.deauth(ap_bssid2, "14:AE:DB:32:0A:8A")
-    # Wait for actual termination (if needed)
-    # t.join()
-    print(ap_bssid2)
-    # ap_bssid = selectbssid()
-    # find_ap_clients(interface).sniffAction(ap_bssid)
+    # TODO: create reusable select
+    # TODO: get two values from select
+    response = selectbssiddual(find_ap_task.stations)
+    print(response)
+    deauth_client.deauth(response["target_bssid"], response["ap_bssid"])
