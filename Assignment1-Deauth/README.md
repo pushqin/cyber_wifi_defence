@@ -21,7 +21,7 @@
 ```cd Assignment1-Deauth```
 
 #### Step 2 - Setup virtual environment
-We dont want to pollute our environement, if you dont care go to **step 3**
+We dont want to pollute our environement
 
 Install venv -   ```apt-get install python3-venv```    
 **notRoot** ```sudo apt-get install python3-venv```
