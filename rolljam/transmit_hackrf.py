@@ -5,24 +5,17 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: jamming_only
+# Title: Not titled yet
 # Author: pushqin
 # GNU Radio version: 3.8.2.0
 
 from distutils.version import StrictVersion
-
-
-import ctypes
-import sys
-print("jam")
-
-
 from PyQt5 import Qt
 from gnuradio import qtgui
 from gnuradio.filter import firdes
 import sip
-from gnuradio import analog
 from gnuradio import blocks
+import pmt
 from gnuradio import gr
 import sys
 import signal
@@ -34,13 +27,12 @@ import time
 
 from gnuradio import qtgui
 
-class jamming_only(gr.top_block, Qt.QWidget):
+class transmit_hackrf(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        # main()
-        gr.top_block.__init__(self, "jamming_only")
+        gr.top_block.__init__(self, "Not titled yet")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("jamming_only")
+        self.setWindowTitle("Not titled yet")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -58,7 +50,7 @@ class jamming_only(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "jamming_only")
+        self.settings = Qt.QSettings("GNU Radio", "transmit_hackrf")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -72,54 +64,79 @@ class jamming_only(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 2e6
+        self.freq = freq = 43395e4
 
         ##################################################
         # Blocks
         ##################################################
-        self.qtgui_sink_x_0 = qtgui.sink_c(
-            1024, #fftsize
+        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
+            1024, #size
             firdes.WIN_BLACKMAN_hARRIS, #wintype
-            4337e5, #fc
+            freq, #fc
             samp_rate, #bw
             "", #name
-            True, #plotfreq
-            True, #plotwaterfall
-            True, #plottime
-            True #plotconst
+            1
         )
-        self.qtgui_sink_x_0.set_update_time(1.0/10)
-        self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.qtgui_freq_sink_x_0.set_update_time(0.10)
+        self.qtgui_freq_sink_x_0.set_y_axis(-140, 10)
+        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
+        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
+        self.qtgui_freq_sink_x_0.enable_autoscale(False)
+        self.qtgui_freq_sink_x_0.enable_grid(False)
+        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
+        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
+        self.qtgui_freq_sink_x_0.enable_control_panel(False)
 
-        self.qtgui_sink_x_0.enable_rf_freq(False)
 
-        self.top_grid_layout.addWidget(self._qtgui_sink_x_0_win)
+
+        labels = ['', '', '', '', '',
+            '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+            "magenta", "yellow", "dark red", "dark green", "dark blue"]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
+            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
+            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
+            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
+
+        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
         self.osmosdr_sink_0 = osmosdr.sink(
             args="numchan=" + str(1) + " " + ""
         )
         self.osmosdr_sink_0.set_time_unknown_pps(osmosdr.time_spec_t())
         self.osmosdr_sink_0.set_sample_rate(samp_rate)
-        self.osmosdr_sink_0.set_center_freq(43371e4, 0)
+        self.osmosdr_sink_0.set_center_freq(freq, 0)
         self.osmosdr_sink_0.set_freq_corr(0, 0)
-        self.osmosdr_sink_0.set_gain(10, 0)
-        self.osmosdr_sink_0.set_if_gain(60, 0)
-        self.osmosdr_sink_0.set_bb_gain(40, 0)
+        self.osmosdr_sink_0.set_gain(0, 0)
+        self.osmosdr_sink_0.set_if_gain(47, 0)
+        self.osmosdr_sink_0.set_bb_gain(20, 0)
         self.osmosdr_sink_0.set_antenna('', 0)
         self.osmosdr_sink_0.set_bandwidth(0, 0)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1000, 1000, 0, 0)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, '/pushqin/rolljamattack/receive_file', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.blocks_throttle_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.blocks_throttle_0, 0))
         self.connect((self.blocks_throttle_0, 0), (self.osmosdr_sink_0, 0))
-        self.connect((self.blocks_throttle_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.blocks_throttle_0, 0), (self.qtgui_freq_sink_x_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "jamming_only")
+        self.settings = Qt.QSettings("GNU Radio", "transmit_hackrf")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -128,21 +145,30 @@ class jamming_only(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
         self.osmosdr_sink_0.set_sample_rate(self.samp_rate)
-        self.qtgui_sink_x_0.set_frequency_range(4337e5, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
+
+    def get_freq(self):
+        return self.freq
+
+    def set_freq(self, freq):
+        self.freq = freq
+        self.osmosdr_sink_0.set_center_freq(self.freq, 0)
+        self.qtgui_freq_sink_x_0.set_frequency_range(self.freq, self.samp_rate)
 
 
-def jam(options=None):
-    print("main")
+
+
+
+def transmit( options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = jamming_only()
+    tb = transmit_hackrf()
 
     tb.start()
 
@@ -164,6 +190,3 @@ def jam(options=None):
 
     qapp.aboutToQuit.connect(quitting)
     qapp.exec_()
-
-# if __name__ == '__main__':
-#     main()
