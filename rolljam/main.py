@@ -13,7 +13,7 @@ if __name__ == "__main__":
         except:
             print("Warning: failed to XInitThreads()")
 
+    # 
     # jam()
-    receive()
-    # transmit()
-
+    # receive()
+    transmit()
